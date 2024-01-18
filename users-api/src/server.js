@@ -75,7 +75,7 @@ app.use(
 
 app.get("/users", async (req, res) => {
   const page = parseInt(req.query.page, 10) || 1;
-  const pageSize = 5;
+  const pageSize = 25;
   try {
     const users = await User.findAll({
       offset: (page - 1) * pageSize,
