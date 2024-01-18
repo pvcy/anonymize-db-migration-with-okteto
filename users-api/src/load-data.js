@@ -40,7 +40,7 @@ const connectToDatabase = async () => {
         );
     `);
 
-  const usersJson = await fs.readFile("users.json", "utf-8");
+  const usersJson = await fs.readFile("../data/users.json", "utf-8");
   const usersData = JSON.parse(usersJson);
 
   const insertSql = `

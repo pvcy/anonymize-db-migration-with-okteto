@@ -15,7 +15,7 @@ services:
     depends_on:
       - users-db
     volumes:
-      - ./users-api:/app/src
+      - ./users-api:/app
 
   users-ui:
     build:

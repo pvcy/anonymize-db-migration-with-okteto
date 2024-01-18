@@ -1,4 +1,5 @@
 FROM node:bullseye-slim
+RUN apt-get update && apt-get install postgresql-client -y
 
 WORKDIR /app
 COPY ./users-api/src/package*.json .

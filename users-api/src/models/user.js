@@ -24,7 +24,7 @@ module.exports = (sequelize, DataTypes) => {
     dob: DataTypes.STRING
   }, {
     sequelize,
-    modelName: 'User',
+    modelName: 'user',
   });
   return User;
 };

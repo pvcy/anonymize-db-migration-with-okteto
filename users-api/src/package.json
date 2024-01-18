@@ -1,6 +1,10 @@
 {
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "load-data": "node load-data.js",
+    "psql": "PGPASSWORD=$DB_PASSWORD psql -h $DB_HOST -U $DB_USERNAME",
+    "migrate": "npx sequelize db:migrate",
+    "migrate:undo": "npx sequelize db:migrate:undo"
   },
   "dependencies": {
     "cors": "^2.8.5",
