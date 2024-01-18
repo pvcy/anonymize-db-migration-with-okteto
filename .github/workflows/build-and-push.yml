@@ -1,0 +1,24 @@
+name: Build and Push Container Image
+on:
+  push:
+    branches: [ main ]
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Google Cloud SDK
+      uses: google-github-actions/setup-gcloud@v0.2.1
+      with:
+        project_id: database-migration-anonymized
+        service_account_key: ${{ secrets.GCP_SA_KEY }}
+        export_default_credentials: true
+
+    - name: Build and Push
+      run: |
+        docker build -t users-db --file db/Dockerfile .
+        gcloud auth configure-docker
+        docker tag users-db:latest gcr.io/database-migration-anonymized/users-db
+        docker push gcr.io/database-migration-anonymized/users-db

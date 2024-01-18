@@ -1,0 +1,106 @@
+name: Standup Database and Test Migration
+on:
+  pull_request:
+    branches: [ main ]
+    paths: 
+    - 'users-api/src/migrations/**'
+
+jobs:
+  check-migrations:
+    runs-on: ubuntu-latest
+    env:
+      GCP_PROEJCT_ID: "database-migration-anonymized"
+      DB_HOST: "users-db"
+      POSTGRES_PASSWORD: "dMVZFeBWLOzYRV71"
+      DB_USERNAME: "postgres"
+      POSTGRES_DB: "postgres"
+      DB_BACKUP_URL: "https://storage.googleapis.com/anonymize-db-backups/us-west1/backup.sql"
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Authenticate with GCP
+      uses: google-github-actions/auth@v1
+      with:
+        credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+    - name: Set up Cloud SDK
+      uses: google-github-actions/setup-gcloud@v1
+
+    - name: Use gcloud CLI
+      run: gcloud info
+
+    - name: Configure Docker to authenticate with GCR
+      run: |
+        gcloud auth configure-docker
+    
+    - name: Pull PostgreSQL image from GCP
+      run: |
+        docker pull gcr.io/$GCP_PROEJCT_ID/$DB_HOST:latest
+
+    - name: Start PostgreSQL container
+      run: |
+        docker run -d --name $DB_HOST \
+          -e POSTGRES_USER=$DB_USERNAME \
+          -e POSTGRES_PASSWORD=$POSTGRES_PASSWORD \
+          -e POSTGRES_DB=$POSTGRES_DB \
+          -e RESTORE_FROM_BACKUP=True \
+          -e DB_BACKUP_URL=$DB_BACKUP_URL \
+          -p 5432:5432 \
+          gcr.io/$GCP_PROEJCT_ID/$DB_HOST:latest
+
+    - name: Install Sequelize CLI and dependencies
+      run: |
+        cd ./users-api/src
+        npm install
+
+    - name: Wait for Postgres to be ready
+      run: |
+        for i in {1..10}; do
+          nc -z localhost 5432 && echo "Postgres is up" && break
+          echo "Waiting for Postgres..."
+          sleep 10
+        done
+
+    - name: Run Migrations
+      run: |
+        cd ./users-api/src
+        if npx sequelize-cli db:migrate; then
+          echo "PR_COMMENT=:white_check_mark: Database migration succeeded!" >> $GITHUB_ENV
+        else
+          echo "PR_COMMENT=:x: Database migration failed." >> $GITHUB_ENV
+        fi
+      continue-on-error: true
+
+    - name: Cleanup
+      run: docker stop $DB_HOST
+
+    - name: Check for existing comment
+      id: check_comment
+      run: |
+        comment_id=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+          -H "Accept: application/vnd.github.v3+json" \
+          https://api.github.com/repos/${{ github.repository }}/issues/${{ github.event.pull_request.number }}/comments \
+          | jq '.[] | select(.user.login == "github-actions[bot]" and .body | test("Database migration")) | .id')
+
+        echo "::set-output name=comment_id::$comment_id"
+      continue-on-error: true
+
+    - name: Post or update PR comment based on migration result
+      run: |
+        if [[ -z "${{ steps.check_comment.outputs.comment_id }}" ]]; then
+          # Create a new comment
+          curl -X POST \
+            -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github.v3+json" \
+            https://api.github.com/repos/${{ github.repository }}/issues/${{ github.event.pull_request.number }}/comments \
+            -d "{\"body\":\"${{ env.PR_COMMENT }}\"}"
+        else
+          # Update the existing comment
+          curl -X PATCH \
+            -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github.v3+json" \
+            https://api.github.com/repos/${{ github.repository }}/issues/comments/${{ steps.check_comment.outputs.comment_id }} \
+            -d "{\"body\":\"${{ env.PR_COMMENT }}\"}"
+        fi

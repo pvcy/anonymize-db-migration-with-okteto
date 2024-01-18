@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Users</title>
+  <style>
+    table {
+      width: 100%;
+      height: 200px;
+      border-collapse: collapse;
+    }
+
+    table,
+    th,
+    td {
+      border: 1px solid;
+      padding-left: 5px;
+      padding-right: 5px;
+    }
+
+    tr:nth-child(even) {
+      background-color: #D6EEEE;
+    }
+
+    a {
+      text-decoration: none;
+      display: inline-block;
+      padding: 8px 16px;
+    }
+
+    a:hover {
+      background-color: #ddd;
+      color: black;
+    }
+
+    .prev-next-button {
+      background-color: #04AA6D;
+      color: white;
+      border-radius: 50%;
+    }
+
+    div.navbuttons {
+      text-align: right;
+      padding: 3px;
+    }
+  </style>
+</head>
+
+<body>
+  <h2>List of Users</h2>
+  <div class="navbuttons" id="pagination-controls"></div>
+  <table id="usersTable">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>First Name</th>
+        <th>Last Name</th>
+        <th>Phone</th>
+        <th>City</th>
+        <th>State</th>
+        <th>Zip Code</th>
+        <th>Age</th>
+        <th>Gender</th>
+        <th>DOB</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <script>
+    const currentPage = getPageParam();
+    renderPaginationControls(currentPage);
+    const API_ENDPOINT = `http://localhost:8080/users?page=${currentPage}`;
+
+    fetch(API_ENDPOINT)
+      .then(response => response.json())
+      .then(envelope => {
+        const tableBody = document.querySelector('#usersTable tbody');
+        envelope.users.forEach(user => {
+          const row = document.createElement('tr');
+
+          const idCell = document.createElement('td');
+          idCell.textContent = user.user_id;
+          row.appendChild(idCell);
+
+          const fnameCell = document.createElement('td');
+          fnameCell.textContent = user.first_name;
+          row.appendChild(fnameCell);
+
+          const lnameCell = document.createElement('td');
+          lnameCell.textContent = user.last_name;
+          row.appendChild(lnameCell);
+
+          const phoneCell = document.createElement('td');
+          phoneCell.textContent = user.phone;
+          row.appendChild(phoneCell);
+
+          const cityCell = document.createElement('td');
+          cityCell.textContent = user.city;
+          row.appendChild(cityCell);
+
+          const stateCell = document.createElement('td');
+          stateCell.textContent = user.state;
+          row.appendChild(stateCell);
+
+          const zipCell = document.createElement('td');
+          zipCell.textContent = user.zip;
+          row.appendChild(zipCell);
+
+          const ageCell = document.createElement('td');
+          ageCell.textContent = user.age;
+          row.appendChild(ageCell);
+
+          const genderCell = document.createElement('td');
+          genderCell.textContent = user.gender;
+          row.appendChild(genderCell);
+
+          const dobCell = document.createElement('td');
+          dobCell.textContent = user.dob;
+          row.appendChild(dobCell);
+
+          tableBody.appendChild(row);
+        });
+      })
+      .catch(error => {
+        console.error('Error fetching users:', error);
+      });
+
+    function getPageParam() {
+      const url = new URL(window.location.href);
+      const params = new URLSearchParams(url.search);
+      return parseInt(params.get("page") || "1", 10);
+    }
+
+    function renderPaginationControls(currentPage) {
+      const controlsDiv = document.getElementById('pagination-controls');
+
+      // Clear existing controls
+      controlsDiv.innerHTML = '';
+
+      // Create and append "Previous" link if currentPage is greater than 1
+      if (currentPage > 1) {
+        const prevLink = document.createElement('a');
+        prevLink.href = `?page=${currentPage - 1}`;
+        prevLink.innerHTML = '&#8249;';
+
+        // Add class
+        prevLink.classList.add('prev-next-button');
+
+        controlsDiv.appendChild(prevLink);
+      }
+
+      // Add a space between "Previous" and "Next"
+      controlsDiv.appendChild(document.createTextNode(' '));
+
+      // Create and append "Next" link
+      const nextLink = document.createElement('a');
+      nextLink.href = `?page=${currentPage + 1}`;
+      nextLink.innerHTML = '&#8250';
+
+      // Add class
+      nextLink.classList.add('prev-next-button');
+
+      controlsDiv.appendChild(nextLink);
+    }
+  </script>
+</body>
+
+</html>
