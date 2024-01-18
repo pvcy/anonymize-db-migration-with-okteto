@@ -9,7 +9,7 @@ jobs:
   check-migrations:
     runs-on: ubuntu-latest
     env:
-      GCP_PROEJCT_ID: "database-migration-anonymized"
+      GCP_PROEJCT_ID: "database-migration-with-okteto"
       DB_HOST: "users-db"
       POSTGRES_PASSWORD: "dMVZFeBWLOzYRV71"
       DB_USERNAME: "postgres"

@@ -12,7 +12,7 @@ jobs:
     - name: Set up Google Cloud SDK
       uses: google-github-actions/setup-gcloud@v0.2.1
       with:
-        project_id: database-migration-anonymized
+        project_id: database-migration-with-okteto
         service_account_key: ${{ secrets.GCP_SA_KEY }}
         export_default_credentials: true
 
@@ -20,5 +20,5 @@ jobs:
       run: |
         docker build -t users-db --file db/Dockerfile .
         gcloud auth configure-docker
-        docker tag users-db:latest gcr.io/database-migration-anonymized/users-db
-        docker push gcr.io/database-migration-anonymized/users-db
+        docker tag users-db:latest gcr.io/database-migration-with-okteto/users-db
+        docker push gcr.io/database-migration-with-okteto/users-db
