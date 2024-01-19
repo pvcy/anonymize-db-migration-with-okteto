@@ -66,6 +66,7 @@ jobs:
     - name: Run Sequelize Migration
       id: migration
       run: |
+        cd ./users-api/src
         OUTPUT=$(npx sequelize db:migrate)
         EXIT_CODE=$?
         echo "::set-output name=exit_code::$EXIT_CODE"
