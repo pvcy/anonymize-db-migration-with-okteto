@@ -66,9 +66,6 @@ jobs:
     - name: Run Sequelize Migration
       id: migration
       run: |
-        # Replace with your command to run the migration
-        # Example: npx sequelize db:migrate
-        # Capture output and exit code
         OUTPUT=$(npx sequelize db:migrate)
         EXIT_CODE=$?
         echo "::set-output name=exit_code::$EXIT_CODE"
