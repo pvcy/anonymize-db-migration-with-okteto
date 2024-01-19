@@ -70,14 +70,11 @@
   </table>
 
   <script>
-    const API_HOST = getHost();
-    const PROTOCOL = window.location.protocol;
     const currentPage = getPageParam();
     renderPaginationControls(currentPage);
     const API_PATH = `/users?page=${currentPage}`;
-    const API_ENDPOINT = PROTOCOL + "//" + API_HOST + API_PATH;
 
-    fetch(API_ENDPOINT)
+    fetch(API_PATH)
       .then(response => response.json())
       .then(envelope => {
         const tableBody = document.querySelector('#usersTable tbody');

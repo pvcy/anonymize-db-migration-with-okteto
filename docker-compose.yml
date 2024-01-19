@@ -2,8 +2,8 @@ version: "3.7"
 services:
   users-api:
     build:
-      context: .
-      dockerfile: users-api/Dockerfile
+      context: users-api
+      dockerfile: Dockerfile
     environment:
       DB_USERNAME: "postgres"
       DB_PASSWORD: ${DB_PASSWORD:-dMVZFeBWLOzYRV71} #It is strongly recommended to provide DB_PASSWORD in the environment rather than use this default.
@@ -15,12 +15,12 @@ services:
     depends_on:
       - users-db
     volumes:
-      - ./users-api:/app/src
+      - ./users-api:/app
 
   users-ui:
     build:
-      context: .
-      dockerfile: users-ui/Dockerfile
+      context: users-ui
+      dockerfile: Dockerfile
     ports:
       - 5000:80
     depends_on:
@@ -30,8 +30,8 @@ services:
 
   users-db:
     build:
-      context: .
-      dockerfile: db/Dockerfile
+      context: db
+      dockerfile: Dockerfile
     environment:
       POSTGRES_USER: "postgres"
       POSTGRES_PASSWORD: ${DB_PASSWORD:-dMVZFeBWLOzYRV71}
