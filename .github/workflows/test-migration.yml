@@ -63,44 +63,57 @@ jobs:
           sleep 10
         done
 
-    - name: Run Migrations
+    - name: Run Sequelize Migration
+      id: migration
       run: |
-        cd ./users-api/src
-        if npx sequelize-cli db:migrate; then
-          echo "PR_COMMENT=:white_check_mark: Database migration succeeded!" >> $GITHUB_ENV
-        else
-          echo "PR_COMMENT=:x: Database migration failed." >> $GITHUB_ENV
-        fi
-      continue-on-error: true
+        # Replace with your command to run the migration
+        # Example: npx sequelize db:migrate
+        # Capture output and exit code
+        OUTPUT=$(npx sequelize db:migrate)
+        EXIT_CODE=$?
+        echo "::set-output name=exit_code::$EXIT_CODE"
+        echo "::set-output name=output::$OUTPUT"
+
+    - name: Add or Update Comment on PR
+      uses: actions/github-script@v7
+      if: always() # Ensures this step runs even if the migration step fails
+      with:
+        script: |
+          const output = ${{ steps.migration.outputs.output }};
+          const exitCode = ${{ steps.migration.outputs.exit_code }};
+          const migrationMessage = exitCode == 0 ? 'Migration successful' : `Migration failed with exit code ${exitCode}: ${output}`;
+          const commentIdentifier = '🔄 Sequelize Migration Result'; // Unique identifier for the comment
+          const commentBody = `${commentIdentifier}\n${migrationMessage}`;
+
+          const issue_number = context.issue.number;
+          const { owner, repo } = context.repo;
+
+          // Find existing comment
+          const comments = await github.rest.issues.listComments({
+            issue_number,
+            owner,
+            repo
+          });
+
+          const migrationComment = comments.data.find(comment => comment.body.startsWith(commentIdentifier));
+
+          // Update existing comment or create a new one
+          if (migrationComment) {
+            await github.rest.issues.updateComment({
+              owner,
+              repo,
+              comment_id: migrationComment.id,
+              body: commentBody
+            });
+          } else {
+            await github.rest.issues.createComment({
+              issue_number,
+              owner,
+              repo,
+              body: commentBody
+            });
+          }
 
     - name: Cleanup
       run: docker stop $DB_HOST
 
-    - name: Check for existing comment
-      id: check_comment
-      run: |
-        comment_id=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-          -H "Accept: application/vnd.github.v3+json" \
-          https://api.github.com/repos/${{ github.repository }}/issues/${{ github.event.pull_request.number }}/comments \
-          | jq '.[] | select(.user.login == "github-actions[bot]" and .body | test("Database migration")) | .id')
-
-        echo "::set-output name=comment_id::$comment_id"
-      continue-on-error: true
-
-    - name: Post or update PR comment based on migration result
-      run: |
-        if [[ -z "${{ steps.check_comment.outputs.comment_id }}" ]]; then
-          # Create a new comment
-          curl -X POST \
-            -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-            -H "Accept: application/vnd.github.v3+json" \
-            https://api.github.com/repos/${{ github.repository }}/issues/${{ github.event.pull_request.number }}/comments \
-            -d "{\"body\":\"${{ env.PR_COMMENT }}\"}"
-        else
-          # Update the existing comment
-          curl -X PATCH \
-            -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-            -H "Accept: application/vnd.github.v3+json" \
-            https://api.github.com/repos/${{ github.repository }}/issues/comments/${{ steps.check_comment.outputs.comment_id }} \
-            -d "{\"body\":\"${{ env.PR_COMMENT }}\"}"
-        fi
