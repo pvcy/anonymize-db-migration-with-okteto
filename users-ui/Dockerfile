@@ -1,9 +1,6 @@
 FROM nginx:alpine
-WORKDIR /usr/share/nginx
 
-# Remove default nginx static assets
-RUN rm -rf ./*
-
-COPY ./users-ui/src ./html
+COPY nginx/conf.d/default.conf /etc/nginx/conf.d/default.conf
+COPY src /usr/share/nginx/html
 
 ENTRYPOINT ["nginx", "-g", "daemon off;"]

@@ -2,11 +2,10 @@ FROM node:bullseye-slim
 RUN apt-get update && apt-get install postgresql-client -y
 
 WORKDIR /app
-COPY ./users-api/src/package*.json .
+COPY src/package*.json .
 RUN npm install
 
-COPY ./users-api/src .
-COPY ./users-api/data .
+COPY src ./
 
 EXPOSE 8080
 
