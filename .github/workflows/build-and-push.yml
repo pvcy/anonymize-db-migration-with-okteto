@@ -18,7 +18,7 @@ jobs:
 
     - name: Build and Push
       run: |
-        docker build -t users-db --file db/Dockerfile .
+        docker build -t users-db --file db/Dockerfile db
         gcloud auth configure-docker
         docker tag users-db:latest gcr.io/database-migration-with-okteto/users-db
         docker push gcr.io/database-migration-with-okteto/users-db
