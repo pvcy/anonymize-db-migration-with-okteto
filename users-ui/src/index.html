@@ -128,17 +128,6 @@
         console.error('Error fetching users:', error);
       });
 
-    function getHost() {
-      const topLevelDomain = ".preview.pvcy.io";
-      const hostname = window.location.hostname;
-      const parts = hostname.split('.');
-      if (parts.length > 0) {
-        let subdomain = parts[0].replace("ui", "api");
-        return subdomain + topLevelDomain;
-      }
-      return hostname;
-    }
-
     function getPageParam() {
       const url = new URL(window.location.href);
       const params = new URLSearchParams(url.search);
