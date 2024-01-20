@@ -20,35 +20,20 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v3
 
-    - name: Authenticate with GCP
-      uses: google-github-actions/auth@v1
-      with:
-        credentials_json: ${{ secrets.GCP_SA_KEY }}
-
-    - name: Set up Cloud SDK
-      uses: google-github-actions/setup-gcloud@v1
-
-    - name: Use gcloud CLI
-      run: gcloud info
-
-    - name: Configure Docker to authenticate with GCR
+    - name: Build database container
       run: |
-        gcloud auth configure-docker
-    
-    - name: Pull PostgreSQL image from GCP
-      run: |
-        docker pull gcr.io/$GCP_PROEJCT_ID/$DB_HOST:latest
+        docker build -t users-db --file db/Dockerfile db
 
     - name: Start PostgreSQL container
       run: |
-        docker run -d --name $DB_HOST \
+        docker run -d --name localhost \
           -e POSTGRES_USER=$DB_USERNAME \
           -e POSTGRES_PASSWORD=$POSTGRES_PASSWORD \
           -e POSTGRES_DB=$POSTGRES_DB \
           -e RESTORE_FROM_BACKUP=True \
           -e DB_BACKUP_URL=$DB_BACKUP_URL \
           -p 5432:5432 \
-          gcr.io/$GCP_PROEJCT_ID/$DB_HOST:latest
+          users-db:latest
 
     - name: Install Sequelize CLI and dependencies
       run: |
@@ -67,7 +52,7 @@ jobs:
       id: migration
       run: |
         cd ./users-api/src
-        OUTPUT=$(npx sequelize db:migrate)
+        OUTPUT=$(npx sequelize db:migrate --env ci)
         EXIT_CODE=$?
         echo "::set-output name=exit_code::$EXIT_CODE"
         echo "::set-output name=output::$OUTPUT"
