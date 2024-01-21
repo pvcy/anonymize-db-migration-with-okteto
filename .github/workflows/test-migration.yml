@@ -9,11 +9,10 @@ jobs:
   check-migrations:
     runs-on: ubuntu-latest
     env:
-      GCP_PROEJCT_ID: "database-migration-with-okteto"
-      DB_HOST: "users-db"
-      POSTGRES_PASSWORD: "dMVZFeBWLOzYRV71"
       DB_USERNAME: "postgres"
+      DB_PASSWORD: "dMVZFeBWLOzYRV71"
       POSTGRES_DB: "postgres"
+      DB_HOST: "users-db"
       DB_BACKUP_URL: "https://storage.googleapis.com/anonymize-db-backups/us-west1/backup.sql"
 
     steps:
@@ -26,9 +25,9 @@ jobs:
 
     - name: Start PostgreSQL container
       run: |
-        docker run -d --name localhost \
+        docker run -d --name $DB_HOST \
           -e POSTGRES_USER=$DB_USERNAME \
-          -e POSTGRES_PASSWORD=$POSTGRES_PASSWORD \
+          -e POSTGRES_PASSWORD=$DB_PASSWORD \
           -e POSTGRES_DB=$POSTGRES_DB \
           -e RESTORE_FROM_BACKUP=True \
           -e DB_BACKUP_URL=$DB_BACKUP_URL \
