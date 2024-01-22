@@ -80,7 +80,21 @@ jobs:
 
           const issue_number = context.issue.number;
           const { owner, repo } = context.repo;
-          console.log(context);
+
+          const payload = {
+            issue_number,
+            owner,
+            repo
+          }
+
+          console.log(payload)
+          
+          // Find existing comment
+          //const comments = await github.rest.issues.listComments({
+          //  issue_number,
+          //  owner,
+          //  repo
+          //});
 
           
 
