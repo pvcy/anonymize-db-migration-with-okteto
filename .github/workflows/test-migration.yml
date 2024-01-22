@@ -88,24 +88,26 @@ jobs:
             repo
           });
 
-          const migrationComment = comments.data.find(comment => comment.body.startsWith(commentIdentifier));
+          console.log(comments[0])
 
-          // Update existing comment or create a new one
-          if (migrationComment) {
-            await github.rest.issues.updateComment({
-              owner,
-              repo,
-              comment_id: migrationComment.id,
-              body: commentBody
-            });
-          } else {
-            await github.rest.issues.createComment({
-              issue_number,
-              owner,
-              repo,
-              body: commentBody
-            });
-          }
+          # const migrationComment = comments.data.find(comment => comment.body.startsWith(commentIdentifier));
+
+          # // Update existing comment or create a new one
+          # if (migrationComment) {
+          #   await github.rest.issues.updateComment({
+          #     owner,
+          #     repo,
+          #     comment_id: migrationComment.id,
+          #     body: commentBody
+          #   });
+          # } else {
+          #   await github.rest.issues.createComment({
+          #     issue_number,
+          #     owner,
+          #     repo,
+          #     body: commentBody
+          #   });
+          # }
 
     - name: Cleanup
       run: docker stop $DB_HOST
