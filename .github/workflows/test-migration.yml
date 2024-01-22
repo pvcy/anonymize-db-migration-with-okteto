@@ -77,25 +77,44 @@ jobs:
           const commentIdentifier = '🔄 Sequelize Migration Result'; // Unique identifier for the comment
           const commentBody = `${commentIdentifier}\n${migrationMessage}`;
 
-          const issue_number = context.issue.number;
+          const pr_number = context.payload.pull_request.number;
           const { owner, repo } = context.repo;
 
           const payload = {
-            issue_number,
+            pr_number,
             owner,
             repo
           }
 
-          console.log(context.payload.pull_request.number)
-
           console.log(payload)
           
           // Find existing comment
-          //const comments = await github.rest.issues.listComments({
-          //  issue_number,
-          //  owner,
-          //  repo
-          //});
+          const comments = await github.rest.issues.listComments({
+            issue_number,
+            owner,
+            repo
+          });
+
+          const migrationComment = comments.data.find(comment => comment.body.startsWith(commentIdentifier));
+
+          // Update existing comment or create a new one
+          if (migrationComment) {
+            console.log("comment exists")
+            //await github.rest.issues.updateComment({
+            //  owner,
+            //  repo,
+            //  comment_id: migrationComment.id,
+            //  body: commentBody
+            //});
+          } else {
+            console.log("no comment")
+            //await github.rest.issues.createComment({
+            //  issue_number,
+            //  owner,
+            //  repo,
+            //  body: commentBody
+            //});
+          }
 
           
 
