@@ -80,6 +80,7 @@ jobs:
 
           const issue_number = context.issue.number;
           const { owner, repo } = context.repo;
+          console.log(issue_number);
 
           // Find existing comment
           const comments = await github.rest.issues.listComments({
@@ -88,7 +89,7 @@ jobs:
             repo
           });
 
-          console.log(comments[0])
+          # console.log(comments[0])
 
           # const migrationComment = comments.data.find(comment => comment.body.startsWith(commentIdentifier));
 
