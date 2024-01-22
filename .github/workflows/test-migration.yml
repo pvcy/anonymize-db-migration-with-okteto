@@ -87,6 +87,8 @@ jobs:
             repo
           }
 
+          console.log(context.payload.pull_request_number)
+
           console.log(payload)
           
           // Find existing comment
