@@ -37,7 +37,7 @@ jobs:
     - name: Install Sequelize CLI and dependencies
       run: |
         cd ./users-api/src
-        npm install
+        npm ci
 
     - name: Wait for Postgres to be ready
       run: |
@@ -59,11 +59,18 @@ jobs:
     - name: Add or Update Comment on PR
       uses: actions/github-script@v7
       if: always() # Ensures this step runs even if the migration step fails
+      env:
+        OUTPUT: ${{ steps.migration.outputs.output }}
+        EXIT_CODE: ${{ steps.migration.outputs.exit_code }}
       with:
         script: |
-          const output = ${{ steps.migration.outputs.output }};
-          const exitCode = ${{ steps.migration.outputs.exit_code }};
-          const migrationMessage = exitCode == 0 ? 'Migration successful' : `Migration failed with exit code ${exitCode}: ${output}`;
+          const { OUTPUT, EXIT_CODE } = process.env
+          if (!OUTPUT) {
+            console.log("no output")
+            return
+          }
+
+          const migrationMessage = exitCode == 0 ? 'Migration successful' : `Migration failed with exit code ${EXIT_CODE}: ${OUTPUT}`;
           const commentIdentifier = '🔄 Sequelize Migration Result'; // Unique identifier for the comment
           const commentBody = `${commentIdentifier}\n${migrationMessage}`;
 
