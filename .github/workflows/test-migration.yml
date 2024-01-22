@@ -80,35 +80,9 @@ jobs:
 
           const issue_number = context.issue.number;
           const { owner, repo } = context.repo;
-          console.log(issue_number);
+          console.log(context);
 
-          // Find existing comment
-          const comments = await github.rest.issues.listComments({
-            issue_number,
-            owner,
-            repo
-          });
-
-          # console.log(comments[0])
-
-          # const migrationComment = comments.data.find(comment => comment.body.startsWith(commentIdentifier));
-
-          # // Update existing comment or create a new one
-          # if (migrationComment) {
-          #   await github.rest.issues.updateComment({
-          #     owner,
-          #     repo,
-          #     comment_id: migrationComment.id,
-          #     body: commentBody
-          #   });
-          # } else {
-          #   await github.rest.issues.createComment({
-          #     issue_number,
-          #     owner,
-          #     repo,
-          #     body: commentBody
-          #   });
-          # }
+          
 
     - name: Cleanup
       run: docker stop $DB_HOST
