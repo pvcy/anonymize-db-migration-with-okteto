@@ -81,7 +81,7 @@ jobs:
           const { owner, repo } = context.repo;
 
           const payload = {
-            pr_number,
+            issue_number: pr_number,
             owner,
             repo
           }
