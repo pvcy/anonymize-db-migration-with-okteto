@@ -89,11 +89,7 @@ jobs:
           console.log(payload)
           
           // Find existing comment
-          const comments = await github.rest.issues.listComments({
-            issue_number,
-            owner,
-            repo
-          });
+          const comments = await github.rest.issues.listComments(payload);
 
           const migrationComment = comments.data.find(comment => comment.body.startsWith(commentIdentifier));
 
@@ -109,7 +105,7 @@ jobs:
           } else {
             console.log("no comment")
             //await github.rest.issues.createComment({
-            //  issue_number,
+            //  pr_number,
             //  owner,
             //  repo,
             //  body: commentBody
