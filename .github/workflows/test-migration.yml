@@ -54,7 +54,7 @@ jobs:
         cd ./users-api/src
         echo 'MIGRATION_OUTPUT<<EOF' >> $GITHUB_OUTPUT
         npx sequelize db:migrate --env ci 2>&1 >> $GITHUB_OUTPUT
-        echo 'EOF' >> $GITHUB_OUTPUT
+        echo EOF >> $GITHUB_OUTPUT
         
         # OUTPUT=$(npx sequelize db:migrate --env ci 2>&1) || true
         # EXIT_CODE=$?
