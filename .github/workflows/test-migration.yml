@@ -68,14 +68,14 @@ jobs:
       with:
         script: |
           const { MIGRATION_OUTPUT, EXIT_CODE } = process.env
-          if (!MIGRATION_OUTPUT) {
-            console.log("no output")
-            return
-          }
+          if (!MIGRATION_OUTPUT) return
+
+          console.log(MIGRATION_OUTPUT)
+          console.log(EXIT_CODE)
 
           const migrationMessage = EXIT_CODE == 0 ? 'Migration successful' : `Migration failed with exit code ${EXIT_CODE}: ${MIGRATION_OUTPUT}`;
           const commentIdentifier = '🔄 Sequelize Migration Result'; // Unique identifier for the comment
-          const commentBody = `${commentIdentifier}\n${migrationMessage}`;
+          const commentBody = `${commentIdentifier}\n\n${migrationMessage}`;
 
           const pr_number = context.payload.pull_request.number;
           const { owner, repo } = context.repo;
