@@ -55,13 +55,13 @@ jobs:
           EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
           OUTPUT=$(npx sequelize db:migrate --env ci 2>&1)
           EXIT_CODE=$?
-          echo "MIGRATION_OUTPUT<<$EOF" >> $GITHUB_OUTPUT
-          echo "$OUTPUT" >> $GITHUB_OUTPUT
-          echo "$EOF" >> $GITHUB_OUTPUT
-          echo "EXIT_CODE=$EXIT_CODE" >> $GITHUB_OUTPUT
+          echo "MIGRATION_OUTPUT<<$EOF" >> $GITHUB_ENV
+          echo "$OUTPUT" >> $GITHUB_ENV
+          echo "$EOF" >> $GITHUB_ENV
+          echo "EXIT_CODE=$EXIT_CODE" >> $GITHUB_ENV
         } || echo "The migration failed, check the output"
 
-        cat $GITHUB_OUTPUT
+        cat $GITHUB_ENV
       continue-on-error: true
 
     - name: Add or Update Comment on PR
