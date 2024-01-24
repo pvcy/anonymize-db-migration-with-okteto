@@ -79,6 +79,8 @@ jobs:
           const ansiUp = require('ansi_up').default;
           const ansi_up = new ansiUp();
           const html = ansi_up.ansi_to_html(MIGRATION_OUTPUT);
+          console.log(html);
+          return
 
           const migrationMessage = EXIT_CODE == 0 ? 'Migration successful' : `Migration failed with exit code \`${EXIT_CODE}\`:\n\n${html}`;
           const commentIdentifier = '🔄 Sequelize Migration Result'; // Unique identifier for the comment
