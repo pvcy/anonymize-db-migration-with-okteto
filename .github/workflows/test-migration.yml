@@ -68,7 +68,7 @@ jobs:
           const { MIGRATION_OUTPUT, EXIT_CODE } = process.env
           if (!MIGRATION_OUTPUT) return
 
-          const migrationMessage = EXIT_CODE == 0 ? 'Migration successful' : `Migration failed with exit code ${EXIT_CODE}: \`\`\`sh\n${MIGRATION_OUTPUT}\n\`\`\``;
+          const migrationMessage = EXIT_CODE == 0 ? 'Migration successful' : `Migration failed with exit code \`${EXIT_CODE}\`:\n\n\`\`\`sh\n${MIGRATION_OUTPUT}\n\`\`\``;
           const commentIdentifier = '🔄 Sequelize Migration Result'; // Unique identifier for the comment
           const commentBody = `${commentIdentifier}\n\n${migrationMessage}`;
 
