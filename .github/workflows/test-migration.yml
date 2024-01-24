@@ -65,13 +65,10 @@ jobs:
       uses: actions/github-script@v7
       with:
         script: |
-          console.log(process.env.MIGRATION_OUTPUT)
-          console.log(process.env.EXIT_CODE)
-
           const { MIGRATION_OUTPUT, EXIT_CODE } = process.env
           if (!MIGRATION_OUTPUT) return
 
-          const migrationMessage = EXIT_CODE == 0 ? 'Migration successful' : `Migration failed with exit code ${EXIT_CODE}: ${MIGRATION_OUTPUT}`;
+          const migrationMessage = EXIT_CODE == 0 ? 'Migration successful' : `Migration failed with exit code ${EXIT_CODE}: \`\`\`sh\n${MIGRATION_OUTPUT}\n\`\`\``;
           const commentIdentifier = '🔄 Sequelize Migration Result'; // Unique identifier for the comment
           const commentBody = `${commentIdentifier}\n\n${migrationMessage}`;
 
