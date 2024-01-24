@@ -17,7 +17,7 @@ jobs:
 
     steps:
     - name: Checkout code
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
 
     - name: Build database container
       run: |
@@ -61,8 +61,13 @@ jobs:
           echo "EXIT_CODE=$EXIT_CODE" >> $GITHUB_ENV
         } || echo "The migration failed, check the output"
 
+        if [ $EXIT_CODE -ne 0 ]; then
+          exit 1
+        fi
+
     - name: Add or Update Comment on PR
       uses: actions/github-script@v7
+      if: always()
       with:
         script: |
           const { MIGRATION_OUTPUT, EXIT_CODE } = process.env
