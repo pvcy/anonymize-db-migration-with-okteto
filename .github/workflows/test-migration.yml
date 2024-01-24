@@ -78,7 +78,7 @@ jobs:
           const { MIGRATION_OUTPUT, EXIT_CODE } = process.env
           if (!MIGRATION_OUTPUT) return
 
-          const ansiUp = require('ansi_up').default;
+          const ansiUp = (await import('ansi_up')).default;
           const ansi_up = new ansiUp();
           const html = ansi_up.ansi_to_html(MIGRATION_OUTPUT);
 
