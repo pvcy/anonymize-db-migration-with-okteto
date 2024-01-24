@@ -60,6 +60,8 @@ jobs:
           echo "$EOF" >> $GITHUB_OUTPUT
           echo "EXIT_CODE=$EXIT_CODE" >> $GITHUB_OUTPUT
         } || echo "The migration failed, check the output"
+
+        cat $GITHUB_OUTPUT
       continue-on-error: true
 
     - name: Add or Update Comment on PR
