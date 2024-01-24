@@ -50,14 +50,16 @@ jobs:
     - name: Run Sequelize Migration
       id: migration
       run: |
-        cd ./users-api/src
-        EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
-        OUTPUT=$(npx sequelize db:migrate --env ci 2>&1)
-        EXIT_CODE=$?
-        echo "MIGRATION_OUTPUT<<$EOF" >> $GITHUB_OUTPUT
-        echo "$OUTPUT" >> $GITHUB_OUTPUT
-        echo "$EOF" >> $GITHUB_OUTPUT
-        echo "EXIT_CODE=$EXIT_CODE" >> $GITHUB_OUTPUT
+        {
+          cd ./users-api/src
+          EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
+          OUTPUT=$(npx sequelize db:migrate --env ci 2>&1)
+          EXIT_CODE=$?
+          echo "MIGRATION_OUTPUT<<$EOF" >> $GITHUB_OUTPUT
+          echo "$OUTPUT" >> $GITHUB_OUTPUT
+          echo "$EOF" >> $GITHUB_OUTPUT
+          echo "EXIT_CODE=$EXIT_CODE" >> $GITHUB_OUTPUT
+        } || echo "The migration failed, check the output"
       continue-on-error: true
 
     - name: Add or Update Comment on PR
@@ -67,11 +69,13 @@ jobs:
       #   EXIT_CODE: ${{ steps.migration.outputs.EXIT_CODE }}
       with:
         script: |
+          console.log(process.env.MIGRATION_OUTPUT)
+          console.log(process.env.EXIT_CODE)
+
           const { MIGRATION_OUTPUT, EXIT_CODE } = process.env
           if (!MIGRATION_OUTPUT) return
 
-          console.log(MIGRATION_OUTPUT)
-          console.log(EXIT_CODE)
+          
 
           const migrationMessage = EXIT_CODE == 0 ? 'Migration successful' : `Migration failed with exit code ${EXIT_CODE}: ${MIGRATION_OUTPUT}`;
           const commentIdentifier = '🔄 Sequelize Migration Result'; // Unique identifier for the comment
