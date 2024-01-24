@@ -66,6 +66,7 @@ jobs:
         fi
 
     - name: Install ansi_up
+      if: always()
       run: |
         npm install ansi_up
 
