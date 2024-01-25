@@ -65,55 +65,54 @@ jobs:
           exit 1
         fi
 
-    - run: npm install ansi_up
-      if: always()
-
     - name: Add or Update Comment on PR
-      uses: actions/github-script@v7
       if: always()
-      with:
-        script: |
-          const { MIGRATION_OUTPUT, EXIT_CODE } = process.env
-          if (!MIGRATION_OUTPUT) return
+      run: |
+        npm install ansi_up
 
-          const ansiUp = require('ansi_up');
-          const ansi_up = new ansiUp();
-          const html = ansi_up.ansi_to_html(MIGRATION_OUTPUT);
+        node -e "
+        const { MIGRATION_OUTPUT, EXIT_CODE } = process.env
+        if (!MIGRATION_OUTPUT) return
 
-          const migrationMessage = EXIT_CODE == 0 ? 'Migration successful' : `Migration failed with exit code \`${EXIT_CODE}\`:\n\n${html}`;
-          const commentIdentifier = '🔄 Sequelize Migration Result'; // Unique identifier for the comment
-          const commentBody = `${commentIdentifier}\n\n${migrationMessage}`;
+        const ansiUp = require('ansi_up');
+        const ansi_up = new ansiUp();
+        const html = ansi_up.ansi_to_html(MIGRATION_OUTPUT);
 
-          const pr_number = context.payload.pull_request.number;
-          const { owner, repo } = context.repo;
+        const migrationMessage = EXIT_CODE == 0 ? 'Migration successful' : `Migration failed with exit code \`${EXIT_CODE}\`:\n\n${html}`;
+        const commentIdentifier = '🔄 Sequelize Migration Result'; // Unique identifier for the comment
+        const commentBody = `${commentIdentifier}\n\n${migrationMessage}`;
 
-          const payload = {
+        const pr_number = context.payload.pull_request.number;
+        const { owner, repo } = context.repo;
+
+        const payload = {
+          issue_number: pr_number,
+          owner,
+          repo
+        }
+        
+        // Find existing comment
+        const comments = await github.rest.issues.listComments(payload);
+
+        const migrationComment = comments.data.find(comment => comment.body.startsWith(commentIdentifier));
+
+        // Update existing comment or create a new one
+        if (migrationComment) {
+          await github.rest.issues.updateComment({
+            owner,
+            repo,
+            comment_id: migrationComment.id,
+            body: commentBody
+          });
+        } else {
+          await github.rest.issues.createComment({
             issue_number: pr_number,
             owner,
-            repo
-          }
-          
-          // Find existing comment
-          const comments = await github.rest.issues.listComments(payload);
-
-          const migrationComment = comments.data.find(comment => comment.body.startsWith(commentIdentifier));
-
-          // Update existing comment or create a new one
-          if (migrationComment) {
-            await github.rest.issues.updateComment({
-              owner,
-              repo,
-              comment_id: migrationComment.id,
-              body: commentBody
-            });
-          } else {
-            await github.rest.issues.createComment({
-              issue_number: pr_number,
-              owner,
-              repo,
-              body: commentBody
-            });
-          }
+            repo,
+            body: commentBody
+          });
+        }
+        "
 
     - name: Cleanup
       if: always()
