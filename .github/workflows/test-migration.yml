@@ -81,9 +81,9 @@ jobs:
         const ansi_up = new ansiUp();
         const html = ansi_up.ansi_to_html(MIGRATION_OUTPUT);
 
-        const migrationMessage = EXIT_CODE == 0 ? 'Migration successful' : `Migration failed with exit code \`${EXIT_CODE}\`:\n\n${html}`;
+        const migrationMessage = EXIT_CODE == 0 ? 'Migration successful' : 'Migration failed with exit code ' + EXIT_CODE + ':\n\n' + html;
         const commentIdentifier = '🔄 Sequelize Migration Result'; // Unique identifier for the comment
-        const commentBody = `${commentIdentifier}\n\n${migrationMessage}`;
+        const commentBody = commentIdentifier + '\n\n' + migrationMessage;
 
         const pr_number = context.payload.pull_request.number;
         const { owner, repo } = context.repo;
