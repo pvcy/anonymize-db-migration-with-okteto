@@ -72,7 +72,10 @@ jobs:
 
         node -e "
         const { MIGRATION_OUTPUT, EXIT_CODE } = process.env
-        if (!MIGRATION_OUTPUT) return
+        if (!MIGRATION_OUTPUT) {
+          console.error('Error: MIGRATION_OUTPUT is not set.');
+          process.exit(1);
+        }
 
         const ansiUp = require('ansi_up');
         const ansi_up = new ansiUp();
