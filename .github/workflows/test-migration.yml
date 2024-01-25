@@ -65,6 +65,8 @@ jobs:
           exit 1
         fi
 
+    - run: npm install ansi_up
+
     - name: Add or Update Comment on PR
       uses: actions/github-script@v7
       if: always()
@@ -73,9 +75,7 @@ jobs:
           const { MIGRATION_OUTPUT, EXIT_CODE } = process.env
           if (!MIGRATION_OUTPUT) return
 
-          const { execSync } = require('child_process');
-          execSync('npm install ansi_up');
-          const ansiUp = (await import('ansi_up')).default;
+          const ansiUp = require('ansi_up');
           const ansi_up = new ansiUp();
           const html = ansi_up.ansi_to_html(MIGRATION_OUTPUT);
 
