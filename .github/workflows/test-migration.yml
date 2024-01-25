@@ -68,8 +68,7 @@ jobs:
     - name: Add or Update Comment on PR
       if: always()
       run: |
-        npm install ansi_up
-
+        cd ./users-api/src
         node -e "
           import { AnsiUp } from 'ansi_up';
           
