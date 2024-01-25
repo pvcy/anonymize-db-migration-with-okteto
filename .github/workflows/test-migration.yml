@@ -71,15 +71,15 @@ jobs:
         npm install ansi_up
 
         node -e "
-        (async () => {
+          import { AnsiUp } from 'ansi_up';
+          
           const { MIGRATION_OUTPUT, EXIT_CODE } = process.env
           if (!MIGRATION_OUTPUT) {
             console.error('Error: MIGRATION_OUTPUT is not set.');
             process.exit(1);
           }
 
-          const ansiUp = require('ansi_up');
-          const ansi_up = new ansiUp();
+          let ansi_up = new AnsiUp();
           const html = ansi_up.ansi_to_html(MIGRATION_OUTPUT);
 
           const migrationMessage = EXIT_CODE == 0 ? 'Migration successful' : 'Migration failed with exit code ' + EXIT_CODE + ':\n\n' + html;
@@ -116,7 +116,6 @@ jobs:
               body: commentBody
             });
           }
-          })();
         "
 
     - name: Cleanup
