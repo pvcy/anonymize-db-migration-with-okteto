@@ -73,8 +73,8 @@ jobs:
           const { MIGRATION_OUTPUT, EXIT_CODE } = process.env
           if (!MIGRATION_OUTPUT) return
 
-          const exec = require('child_process').execSync;
-          exec('npm install ansi_up');
+          const { execSync } = require('child_process');
+          execSync('npm install ansi_up');
           const ansiUp = (await import('ansi_up')).default;
           const ansi_up = new ansiUp();
           const html = ansi_up.ansi_to_html(MIGRATION_OUTPUT);
