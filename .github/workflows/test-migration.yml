@@ -66,16 +66,24 @@ jobs:
         fi
 
     - name: Add or Update Comment on PR
-      uses: actions/github-script@v7
       if: always()
-      with:
-        script: |
+      run: |
+        cd ./users-api/src
+        node -e "
+          import { AnsiUp } from 'ansi_up';
+          
           const { MIGRATION_OUTPUT, EXIT_CODE } = process.env
-          if (!MIGRATION_OUTPUT) return
+          if (!MIGRATION_OUTPUT) {
+            console.error('Error: MIGRATION_OUTPUT is not set.');
+            process.exit(1);
+          }
 
-          const migrationMessage = EXIT_CODE == 0 ? 'Migration successful' : `Migration failed with exit code \`${EXIT_CODE}\`:\n\n\`\`\`sh\n${MIGRATION_OUTPUT}\n\`\`\``;
+          let ansi_up = new AnsiUp();
+          const html = ansi_up.ansi_to_html(MIGRATION_OUTPUT);
+
+          const migrationMessage = EXIT_CODE == 0 ? 'Migration successful' : 'Migration failed with exit code ' + EXIT_CODE + ':\n\n' + html;
           const commentIdentifier = '🔄 Sequelize Migration Result'; // Unique identifier for the comment
-          const commentBody = `${commentIdentifier}\n\n${migrationMessage}`;
+          const commentBody = commentIdentifier + '\n\n' + migrationMessage;
 
           const pr_number = context.payload.pull_request.number;
           const { owner, repo } = context.repo;
@@ -107,6 +115,7 @@ jobs:
               body: commentBody
             });
           }
+        "
 
     - name: Cleanup
       if: always()
